@@ -28,7 +28,19 @@ class PPI:
         else:
             print(f'Failed to retrieve data for {acc_id}')
 
-    def printIndex(p_string, aa_seq):
+    def ppi(df, acc_id):
+        """
+        Perfroms the peptide-protein indexing in one step:
+
+        Parameters:
+        df: dataframe containing the AA seqences with protein accession in 'Master Protein Accesssions' column
+        acc_id: the Uniprot Accession ID
+
+        Returns:
+        list: list of AA seqence and position in sequence
+        """
+
+        def printIndex(p_string, aa_seq):
         """
         Prints [AA]: [Position]
 
@@ -50,18 +62,7 @@ class PPI:
      
         if (flag == False):
             print("NONE")
-
-    def ppi(df, acc_id):
-        """
-        Perfroms the peptide-protein indexing in one step:
-
-        Parameters:
-        df: dataframe containing the AA seqences with protein accession in 'Master Protein Accesssions' column
-        acc_id: the Uniprot Accession ID
-
-        Returns:
-        list: list of AA seqence and position in sequence
-        """
+            
         protein_df = df[df['Master Protein Accessions'] == acc_id]
         pset = set(protein_df['Annotated Sequence'].to_list())
         trimmed = []
@@ -73,3 +74,10 @@ class PPI:
         return(indexList)
         print(indexList)
         
+# Driver
+bmc = 'P13796'
+sequence = PPI.AA_sequence(bmc)
+PPI_df = PPI.ppi(df, bmc)
+PPI_df = pd.DataFrame(PPI_df)
+PPI_df[0].str.split(':', expand=True).rename(columns={0: 'Peptide', 1: 'Start-End'})
+PPI_df[0].str.split(':', expand=True).rename(columns={0: 'Peptide', 1: 'Start-End'}).to_csv(f'{bmc}_peptide-protein-index.csv')
